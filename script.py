@@ -171,7 +171,7 @@ class FixedPricePositionLabeler:
 
 def create_fixed_price_position_board(template_path, output_path="output/dkt_beschriftet.png", font_size=24):
     """
-    Erstellt DKT-Brett mit korrekten Preispositionen.
+    Erstellt DKT-Brett mit korrekten Preispositionen
     """
     try:
         labeler = FixedPricePositionLabeler(template_path)
