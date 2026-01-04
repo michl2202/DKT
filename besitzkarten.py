@@ -4,7 +4,7 @@ import os
 import pandas as pd
 
 
-def create_property_cards_from_excel(excel_file="besitzkarten.xlsx", output_folder="property_cards"):
+def create_property_cards_from_excel(excel_file="besitzkarten.xlsx", output_folder="output/property_cards"):
     """
     Erstellt Grundstückskarten aus Excel-Datei mit farbigem oberen Balken
 
@@ -50,7 +50,9 @@ def create_property_cards_from_excel(excel_file="besitzkarten.xlsx", output_fold
                 'miete_4_haus': int(row['Miete_4_Haus']) if pd.notna(row['Miete_4_Haus']) else 0,
                 'miete_hotel': int(row['Miete_Hotel']) if pd.notna(row['Miete_Hotel']) else 0,
                 'hauspreis': int(row['Hauspreis']) if pd.notna(row['Hauspreis']) else 0,
-                'hypothek': int(row['Hypothek']) if pd.notna(row['Hypothek']) else 0
+                'hypothek': int(row['Hypothek']) if pd.notna(row['Hypothek']) else 0,
+                'IstBahnhof': int(row['IstBahnhof']) if pd.notna(row['IstBahnhof']) else 0,
+                'IstWerk': int(row['IstWerk']) if pd.notna(row['IstWerk']) else 0
             }
 
             # Leere Namen überspringen
@@ -252,16 +254,40 @@ def add_property_details(draw, property_data, card_width, card_height, color_bar
         ("Miete mit Hotel", f"{property_data['miete_hotel']} €")
     ]
 
-    for label, value in miete_lines:
-        # Label linksbündig
-        draw.text((margin, current_y), label, fill='black', font=font_medium)
+    bahnhof_lines = [
+        ("Miete allein", f"{property_data['miete']} €"),
+        ("Wenn man 2 Bahnhöfe besitzt", f"{property_data['miete_1_haus']} €"),
+        ("Wenn man 3 Bahnhöfe besitzt", f"{property_data['miete_2_haus']} €"),
+        ("Wenn man 4 Bahnhöfe besitzt", f"{property_data['miete_3_haus']} €")
+    ]
 
-        # Preis rechtsbündig
-        bbox = draw.textbbox((0, 0), value, font=font_medium)
-        text_width = bbox[2] - bbox[0]
-        draw.text((price_column_x - text_width, current_y), value, fill='black', font=font_medium)
+    werk_lines = [
+        "Wenn man Besitzer von",
+        "'" + property_data['name'] + "' ist, so ist",
+        "die Miete 4-mal so hoch, wie Augen",
+        "auf den zwei Würfeln sind"
+    ]
 
-        current_y += font_medium.getbbox("Ag")[3] - font_medium.getbbox("Ag")[1] + line_spacing_medium
+    if property_data['IstBahnhof'] == 1:
+        miete_lines = bahnhof_lines
+
+    if property_data['IstWerk'] == 1:
+        for value in werk_lines:
+            # Label linksbündig
+            draw.text((margin, current_y), value, fill='black', font=font_medium)
+
+            current_y += font_medium.getbbox("Ag")[3] - font_medium.getbbox("Ag")[1] + line_spacing_medium
+    else:
+        for label, value in miete_lines:
+            # Label linksbündig
+            draw.text((margin, current_y), label, fill='black', font=font_medium)
+
+            # Preis rechtsbündig
+            bbox = draw.textbbox((0, 0), value, font=font_medium)
+            text_width = bbox[2] - bbox[0]
+            draw.text((price_column_x - text_width, current_y), value, fill='black', font=font_medium)
+
+            current_y += font_medium.getbbox("Ag")[3] - font_medium.getbbox("Ag")[1] + line_spacing_medium
 
     current_y += section_spacing - line_spacing_medium
 
@@ -277,19 +303,36 @@ def add_property_details(draw, property_data, card_width, card_height, color_bar
         ("Hypothek", f"{property_data['hypothek']} €")
     ]
 
-    for label, value in house_lines:
-        # Label linksbündig
-        if label:
-            draw.text((margin, current_y), label, fill='black', font=font_small)
+    werk_lines_below = [
+        "Wenn man Besitzer beider",
+        "Versorungswerke ist, so ist",
+        "die Miete 10-mal so hoch, wie",
+        "Augen auf den zwei Würfeln sind",
+        "",
+        "Hypothek: " + str(property_data['hypothek']) +  "€"
+    ]
 
-        # Preis rechtsbündig (falls vorhanden)
-        if value:
-            bbox = draw.textbbox((0, 0), value, font=font_small)
-            text_width = bbox[2] - bbox[0]
-            draw.text((price_column_x - text_width, current_y), value, fill='black', font=font_small)
+    if not property_data['IstBahnhof'] == 1 and not property_data['IstWerk'] == 1:
+        for label, value in house_lines:
+            # Label linksbündig
+            if label:
+                draw.text((margin, current_y), label, fill='black', font=font_small)
 
-        current_y += font_small.getbbox("Ag")[3] - font_small.getbbox("Ag")[1] + line_spacing_small
+            # Preis rechtsbündig (falls vorhanden)
+            if value:
+                bbox = draw.textbbox((0, 0), value, font=font_small)
+                text_width = bbox[2] - bbox[0]
+                draw.text((price_column_x - text_width, current_y), value, fill='black', font=font_small)
 
+            current_y += font_small.getbbox("Ag")[3] - font_small.getbbox("Ag")[1] + line_spacing_small
+
+    if property_data['IstWerk'] == 1:
+        for value in werk_lines_below:
+            # Label linksbündig
+            if value:
+                draw.text((margin, current_y), value, fill='black', font=font_medium)
+
+            current_y += font_small.getbbox("Ag")[3] - font_small.getbbox("Ag")[1] + line_spacing_small
 
 def draw_separator_line(draw, y_position, card_width, left_margin, right_margin):
     """

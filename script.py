@@ -169,7 +169,7 @@ class FixedPricePositionLabeler:
         return final_array
 
 
-def create_fixed_price_position_board(template_path, output_path="dkt_beschriftet.png", font_size=24):
+def create_fixed_price_position_board(template_path, output_path="output/dkt_beschriftet.png", font_size=24):
     """
     Erstellt DKT-Brett mit korrekten Preispositionen
     """
@@ -201,4 +201,4 @@ def create_fixed_price_position_board(template_path, output_path="dkt_beschrifte
 # Hauptausführung
 if __name__ == "__main__":
     template_path = "dkt_template.png"
-    result = create_fixed_price_position_board(template_path, "dkt_beschriftet.png", 32)
+    result = create_fixed_price_position_board(template_path, "output/dkt_beschriftet.png", 32)

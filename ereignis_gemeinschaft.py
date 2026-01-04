@@ -4,7 +4,7 @@ import os
 import pandas as pd
 
 
-def create_dkt_cards_from_excel(excel_file="ereignis_gemeinschaft.xlsx", output_folder="dkt_cards"):
+def create_dkt_cards_from_excel(excel_file="ereignis_gemeinschaft.xlsx", output_folder="output/dkt_cards"):
     """
     Erstellt dkt-Karten aus Excel-Datei mit abgerundeten äußeren Ecken
 
